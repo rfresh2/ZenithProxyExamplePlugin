@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew build
 
       - name: Upload Plugin Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: plugin
           path: build/libs/*.jar
