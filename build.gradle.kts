@@ -2,10 +2,10 @@ plugins {
     id("zenithproxy.plugin.dev") version "1.0.0-SNAPSHOT"
 }
 
-group = properties["maven_group"] as String
-version = properties["plugin_version"] as String
-val mc = properties["mc"] as String
-val pluginId = properties["plugin_id"] as String
+group = property("maven_group") as String
+version = property("plugin_version") as String
+val mc = property("mc") as String
+val pluginId = property("plugin_id") as String
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 
@@ -22,6 +22,9 @@ zenithProxyPlugin {
 }
 
 repositories {
+//    maven("https://maven.2b2t.vc/snapshots") {
+//        description = "ZenithProxy Prereleases"
+//    }
     maven("https://maven.2b2t.vc/releases") {
         description = "ZenithProxy Releases"
     }
