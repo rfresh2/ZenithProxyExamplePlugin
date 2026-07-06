@@ -1,5 +1,5 @@
 plugins {
-    id("zenithproxy.plugin.dev") version "1.0.0-SNAPSHOT"
+    id("zenithproxy.plugin.dev") version "1.0.1-SNAPSHOT"
 }
 
 group = property("maven_group") as String
