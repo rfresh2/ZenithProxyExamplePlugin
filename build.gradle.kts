@@ -18,7 +18,7 @@ zenithProxyPlugin {
         "maven_group" to group as String,
     )
     // the minimum supported java version for users of your plugin
-    javaReleaseVersion = JavaLanguageVersion.of(21)
+    javaReleaseVersion = JavaLanguageVersion.of(25)
     // set to false if developing against a zenith version before 3.7.0
     runTaskMixinLauncher = true
 }
