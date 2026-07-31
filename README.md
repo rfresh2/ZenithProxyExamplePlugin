@@ -1,75 +1,61 @@
-# ZenithProxy Example Plugin
+# ZenithProxy Example Plugin - GraalVM Native Image
 
-[ZenithProxy](https://github.com/rfresh2/ZenithProxy) is a Minecraft proxy and bot.
+This branch contains an example of how to build a native image of ZenithProxy with your plugin included
 
-This repository is an example core plugin for ZenithProxy, allowing you to add custom modules and commands.
+See GraalVM documentation for more information: https://www.graalvm.org/latest/reference-manual/native-image/basics/
 
-## Installing Plugins
+This is _not_ compiling a GraalVM native image of your plugin alone - it is the full ZenithProxy application with your plugin included.
 
-Plugins are only supported on the `java` ZenithProxy release channel (i.e. not `linux`).
+GraalVM native image is not able to dynamically load more plugins at runtime.
 
-Place plugin jars in the `plugins` folder inside the same folder as the ZenithProxy launcher.
+# Usage
 
-Restart ZenithProxy to load plugins. Loading plugins after launch or hot reloading is not supported.
+`./gradlew nativeCompile`
 
-## Creating Plugins
+The executable will be at: `build/native/nativeCompile/`
 
-Use this repository as a template to create your own plugin repository.
+# Licensing Implications
 
-### Plugin Structure
+ZenithProxy is licensed under the [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html)
 
-Each plugin needs a main class that implements `ZenithProxyPlugin` and is annotated with `@Plugin`.
+If you distribute a native image of ZenithProxy with your plugin, this - including your plugin - must also be licensed under the AGPL
 
-Plugin metadata like its unique id, version, and supported MC versions is defined in the `@Plugin` annotation.
+This is different than if you were to only distribute your plugin jar, as it now is a full ZenithProxy application.
 
-[See example](https://github.com/rfresh2/ZenithProxyExamplePlugin/blob/1.21.4/src/main/java/org/example/ExamplePlugin.java)
+# Limitations
 
-### Plugin API
+### Reachability Metadata
 
-The `ZenithProxyPlugin` interface requires you to implement an `onLoad` method.
+A GraalVM `Feature` class is provided to quickly register additional reflection
 
-This method provides a `PluginAPI` object that you can use to register modules, commands, and config files.
+You may need to register other types of reachability metadata yourself: https://www.graalvm.org/latest/reference-manual/native-image/metadata/
 
-`Module` and `Command` classes are implemented the same as in the ZenithProxy source code.
+### Launcher
 
-I recommend looking at existing modules, commands, and plugins for examples.
+The compiled build output is a full ZenithProxy application with the plugin included.
 
-* [Module](https://github.com/rfresh2/ZenithProxy/tree/1.21.4/src/main/java/com/zenith/module)
-* [Command](https://github.com/rfresh2/ZenithProxy/tree/1.21.4/src/main/java/com/zenith/command)
-* Plugins
-  * [ZenithProxyVillagerTrader](https://github.com/rfresh2/ZenithProxyVillagerTrader)
-  * [ZenithProxyWebAPI](https://github.com/rfresh2/ZenithProxyWebAPI)
-  * [ZenithProxyChatControl](https://github.com/rfresh2/ZenithProxyChatControl)
-  * More in [my discord server](https://discord.com/channels/1127460556710883391/1369081651564515358)
+So the launcher will not be downloading and running this application during normal operation.
 
-### JavaDocs
+You can execute the application directly from the command line
 
-https://maven.2b2t.vc/javadoc/releases/com/zenith/ZenithProxy/1.21.4-SNAPSHOT
+or the launcher will execute the application if you replace the normal `linux` release channel exe at: `launcher/ZenithProxy` but this is not officially supported.
 
-### Building Plugins
+### Multiple Plugins
 
-Execute the Gradle `build` task: `./gradlew build` - or double-click the task in Intellij
+This example only builds ZenithProxy with this single plugin
 
-The built plugin jar will be in the `build/libs` directory.
+Any plugin included on the compile classpath will be included in the native image, so in theory it may be possible
 
-### Testing Plugins
+but no example or additional documentation is provided here
 
-Execute the `run` task: `./gradlew run` - or double-click the task in Intellij
+# New GraalVM Plugin Checklist
 
-This will run ZenithProxy with your plugin loaded in the `run` directory.
-
-### New Plugin Checklist
-
-1. Edit `gradle.properties`:
-   - `plugin_name` - Name of your plugin, shown to users and in the plugin jar file name (e.g. `ExamplePlugin`)
-   - `plugin_id` - Unique identifier for your plugin (e.g. `example-plugin`)
-     - Must start with a lowercase letter and contain only lowercase letters, numbers, or dashes (`-`)
-   - `mc` - MC version of ZenithProxy your plugin is compiled for (e.g. `1.21.4`)
-   - `maven_group` - Java package for your project (e.g. `com.github.rfresh2`)
-1. Move files to your new corresponding package / maven group:
-   - Example: `src/main/java/org/example` -> `src/main/java/com/github/rfresh2`
-   - First create the new package in `src/main/java`. Then click and drag original subpackages/classes to your new one
-   - Do this with Intellij to avoid manually editing all the source files
-   - You must also create and move package folders for the `src/main/templates` folder
-1. Edit `ExamplePlugin.java`, or remove it and create a new main class
-   - Make sure to update the `@Plugin` annotation
+1. Edit `ExamplePluginReflectionFeature.java`:
+    - Move the feature class to your new corresponding package / maven group
+    - Enter any additional packages to register reflection for (if needed)
+2. Edit `src/resources/META-INF/native-image/org.example/exampleplugin/native-image.properties`
+    - Edit the `Feature` class path to match your new feature class
+    - Create directories and move this file to your corresponding package/maven group
+3. Build and verify
+    - Any additional build arguments needed should be set in `build.gradle.kts`'s `graalvmNative` section
+    - e.g. config for plugin dependencies, different build options, etc.

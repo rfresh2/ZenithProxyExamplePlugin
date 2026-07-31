@@ -1,13 +1,20 @@
 plugins {
     id("zenithproxy.plugin.dev") version "1.1.+"
+    id("org.graalvm.buildtools.native") version "1.1.6"
 }
 
 group = property("maven_group") as String
 version = property("plugin_version") as String
 val mc = property("mc") as String
 val pluginId = property("plugin_id") as String
+val pluginName = property("plugin_name") as String
 
-java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+        nativeImageCapable = true
+    }
+}
 
 zenithProxyPlugin {
     templateProperties = mapOf(
@@ -42,6 +49,8 @@ dependencies {
     /** or select a specific ZenithProxy version **/
 //    zenithProxy("com.zenith:ZenithProxy:3.7.0+$mc")
 
+    compileOnly("org.graalvm.sdk:nativeimage:25.1.3")
+
     /** to include dependencies into your plugin jar **/
 //    shade("com.github.ben-manes.caffeine:caffeine:3.2.0")
 }
@@ -65,5 +74,48 @@ tasks {
 //            exclude(dependency(":error_prone_annotations:.*"))
 //            exclude(dependency(":jspecify:.*"))
 //        }
+    }
+    nativeCompile {
+        notCompatibleWithConfigurationCache("not compatible with configuration cache")
+        dependsOn(shadowJar, build)
+    }
+    generateResourcesConfigFile {
+        notCompatibleWithConfigurationCache("not compatible with configuration cache")
+        dependsOn(shadowJar)
+    }
+}
+
+graalvmNative {
+    binaries {
+        named("main") {
+            javaLauncher = javaToolchains.launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(25))
+                nativeImageCapable = true
+            }
+            imageName = pluginName
+            mainClass = "com.zenith.Proxy"
+            quickBuild = false // set to true for fast builds while developing
+            verbose = true
+            sharedLibrary = false
+            buildArgs.addAll(
+                // required - otherwise plugin classes will be stripped
+                // you may need to add more if your plugin has dependencies
+                "-H:Preserve=package=${project.group}.*",
+                "-O3", // highest optimization level, but slowest build times
+                "-H:DeadlockWatchdogInterval=30",
+                "-H:+CompactingOldGen",
+                "-H:+TrackPrimitiveValues",
+                "-H:+TreatAllTypeReachableConditionsAsTypeReached",
+                "-H:+UsePredicates",
+                "-H:-ReduceImplicitExceptionStackTraceInformation",
+                "--future-defaults=all",
+                "-R:MaxHeapSize=225m",
+                "-march=x86-64-v3",
+                "--gc=serial",
+                "-J-XX:MaxRAMPercentage=90"
+            )
+            configurationFileDirectories.from(file("src/main/resources/META-INF/native-image"))
+        }
+        metadataRepository { enabled = true }
     }
 }

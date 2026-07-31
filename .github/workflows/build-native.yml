@@ -1,0 +1,60 @@
+name: Build GraalVM Native Image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      # reduces the glibc version linked against vs `ubuntu-latest`
+      # i.e. if you build on ubuntu 24, the binary will _not_ work on ubuntu 22
+      # but if you build on ubuntu 22, then it will still work on ubuntu 24
+      image: catthehacker/ubuntu:act-22.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Setup GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '25'
+          distribution: 'graalvm'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Echo Versions and Paths
+        run: |
+          echo "GRAALVM_HOME: $GRAALVM_HOME"
+          echo "JAVA_HOME: $JAVA_HOME"
+          java --version
+          native-image --version
+
+      - name: Elevate wrapper permissions
+        run: chmod +x ./gradlew
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          dependency-graph: generate-and-submit
+          cache-read-only: false
+
+      - name: Build Linux Native
+        run: ./gradlew nativeCompile -x test
+
+      - name: Elevate binary permissions
+        run: chmod +x build/native/nativeCompile/*
+
+      - name: Get Plugin Name
+        run: echo "PLUGIN_NAME=$(grep '^plugin_name=' gradle.properties | cut -d'=' -f2)" >> $GITHUB_ENV
+
+      - name: Zip Binary And Libs
+        run: zip -j ${{ env.PLUGIN_NAME }}.zip build/native/nativeCompile/*
+
+      - name: Upload Linux Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ env.PLUGIN_NAME }}.zip
+          if-no-files-found: error
+          archive: false
