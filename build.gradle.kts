@@ -22,9 +22,9 @@ zenithProxyPlugin {
 }
 
 repositories {
-//    maven("https://maven.2b2t.vc/snapshots") {
-//        description = "ZenithProxy Prereleases"
-//    }
+    maven("https://maven.2b2t.vc/snapshots") {
+        description = "ZenithProxy Prereleases"
+    }
     maven("https://maven.2b2t.vc/releases") {
         description = "ZenithProxy Releases"
     }
@@ -59,5 +59,13 @@ tasks {
 //            exclude(dependency(":error_prone_annotations:.*"))
 //            exclude(dependency(":jspecify:.*"))
 //        }
+    }
+}
+
+// todo: remove after ZenithProxyDevGradle update
+afterEvaluate {
+    tasks.getByName<JavaExec>("run") {
+        mainClass = "com.zenith.ProxyLaunchWrapper"
+        outputs.upToDateWhen { false }
     }
 }
