@@ -8,4 +8,6 @@ public class BuildConstants {
     public static final String MC_VERSION = "${mc_version}";
 
     public static final String PLUGIN_ID = "${plugin_id}";
+
+    public static final String MAVEN_GROUP = "${maven_group}";
 }

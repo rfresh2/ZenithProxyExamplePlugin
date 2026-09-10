@@ -12,7 +12,7 @@ public class ExampleMixin {
         value = "INVOKE",
         target = "Lcom/zenith/Proxy;startServer()V"
     ))
-    public void inject() {
+    public void exampleMixin() {
         ExamplePlugin.LOG.info("hello from example mixin");
     }
 }

@@ -1,5 +1,5 @@
 plugins {
-    id("zenithproxy.plugin.dev") version "1.0.1-SNAPSHOT"
+    id("zenithproxy.plugin.dev") version "1.1.+"
 }
 
 group = property("maven_group") as String
@@ -19,9 +19,12 @@ zenithProxyPlugin {
     )
     // the minimum supported java version for users of your plugin
     javaReleaseVersion = JavaLanguageVersion.of(21)
+    // set to false if developing against a zenith version before 3.7.0
+    runTaskMixinLauncher = true
 }
 
 repositories {
+    // todo: remove after 3.7.0
     maven("https://maven.2b2t.vc/snapshots") {
         description = "ZenithProxy Prereleases"
     }
@@ -35,6 +38,9 @@ repositories {
 
 dependencies {
     zenithProxy("com.zenith:ZenithProxy:$mc-SNAPSHOT")
+
+    /** or select a specific ZenithProxy version **/
+//    zenithProxy("com.zenith:ZenithProxy:3.7.0+$mc")
 
     /** to include dependencies into your plugin jar **/
 //    shade("com.github.ben-manes.caffeine:caffeine:3.2.0")
@@ -59,13 +65,5 @@ tasks {
 //            exclude(dependency(":error_prone_annotations:.*"))
 //            exclude(dependency(":jspecify:.*"))
 //        }
-    }
-}
-
-// todo: remove after ZenithProxyDevGradle update
-afterEvaluate {
-    tasks.getByName<JavaExec>("run") {
-        mainClass = "com.zenith.ProxyLaunchWrapper"
-        outputs.upToDateWhen { false }
     }
 }
