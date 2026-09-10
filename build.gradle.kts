@@ -1,6 +1,6 @@
 plugins {
     id("zenithproxy.plugin.dev") version "1.1.+"
-    id("org.graalvm.buildtools.native") version "1.1.6"
+    id("org.graalvm.buildtools.native") version "1.1.12"
 }
 
 group = property("maven_group") as String
@@ -26,8 +26,8 @@ zenithProxyPlugin {
     )
     // the minimum supported java version for users of your plugin
     javaReleaseVersion = JavaLanguageVersion.of(21)
-    // set to false if developing against a zenith version before 3.7.0
-    runTaskMixinLauncher = true
+    // mixins are not supported in native image
+    runTaskMixinLauncher = false
 }
 
 repositories {
@@ -49,7 +49,7 @@ dependencies {
     /** or select a specific ZenithProxy version **/
 //    zenithProxy("com.zenith:ZenithProxy:3.7.0+$mc")
 
-    compileOnly("org.graalvm.sdk:nativeimage:25.1.3")
+    compileOnly("org.graalvm.sdk:nativeimage:25.3.4.1")
 
     /** to include dependencies into your plugin jar **/
 //    shade("com.github.ben-manes.caffeine:caffeine:3.2.0")
