@@ -17,11 +17,10 @@ import org.example.module.ExampleWanderModule;
     description = "ZenithProxy Example Plugin",
     url = "https://github.com/rfresh2/ZenithProxyExamplePlugin",
     authors = {"rfresh2"},
-    mcVersions = {BuildConstants.MC_VERSION} // to indicate any MC version: @Plugin(mcVersions = "*")
+    mcVersions = {BuildConstants.MC_VERSION}, // to indicate any MC version: @Plugin(mcVersions = "*")
+    mixins = {BuildConstants.MAVEN_GROUP + ".mixin.**"}
 )
 public class ExamplePlugin implements ZenithProxyPlugin {
-    // public static for simple access from modules and commands
-    // or alternatively, you could pass these around in constructors
     public static ExampleConfig PLUGIN_CONFIG;
     public static ComponentLogger LOG;
 
