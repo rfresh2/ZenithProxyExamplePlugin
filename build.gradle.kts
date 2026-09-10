@@ -24,6 +24,10 @@ zenithProxyPlugin {
 }
 
 repositories {
+    /** uncomment to use ZenithProxy pre-release snapshots **/
+//    maven("https://maven.2b2t.vc/snapshots") {
+//        description = "ZenithProxy Prereleases"
+//    }
     maven("https://maven.2b2t.vc/releases") {
         description = "ZenithProxy Releases"
     }
