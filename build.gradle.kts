@@ -1,5 +1,5 @@
 plugins {
-    id("zenithproxy.plugin.dev") version "1.1.+"
+    id("zenithproxy.plugin.dev") version "1.2.+"
 }
 
 group = property("maven_group") as String
@@ -10,13 +10,17 @@ val pluginId = property("plugin_id") as String
 java { toolchain { languageVersion = JavaLanguageVersion.of(25) } }
 
 zenithProxyPlugin {
-    templateProperties = mapOf(
-        // variables in your BuildConstants.java template class
-        "version" to project.version,
-        "mc_version" to mc,
-        "plugin_id" to pluginId,
-        "maven_group" to group as String,
-    )
+    // Generates a BuildConstants.java file to the project's group java package
+    // Allows you to pass in data from gradle into the plugin's classes
+    buildConstants {
+        // map of Java field name to String value
+        fields = mapOf(
+            "VERSION" to project.version.toString(),
+            "MC_VERSION" to mc,
+            "PLUGIN_ID" to pluginId,
+            "MAVEN_GROUP" to project.group.toString(),
+        )
+    }
     // the minimum supported java version for users of your plugin
     javaReleaseVersion = JavaLanguageVersion.of(21)
     // set to false if developing against a zenith version before 3.7.0
