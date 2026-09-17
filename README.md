@@ -70,6 +70,5 @@ This will run ZenithProxy with your plugin loaded in the `run` directory.
    - Example: `src/main/java/org/example` -> `src/main/java/com/github/rfresh2`
    - First create the new package in `src/main/java`. Then click and drag original subpackages/classes to your new one
    - Do this with Intellij to avoid manually editing all the source files
-   - You must also create and move package folders for the `src/main/templates` folder
 1. Edit `ExamplePlugin.java`, or remove it and create a new main class
    - Make sure to update the `@Plugin` annotation
